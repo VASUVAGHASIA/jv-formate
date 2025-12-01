@@ -11,16 +11,19 @@ export default defineConfig(({ mode }) => {
   // Load env file based on `mode` in the current working directory.
   const env = loadEnv(mode, process.cwd(), '');
 
-  const homeDir = os.homedir();
-  const certPath = path.resolve(homeDir, ".office-addin-dev-certs", "localhost.crt");
-  const keyPath = path.resolve(homeDir, ".office-addin-dev-certs", "localhost.key");
-
   let httpsConfig;
-  if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
-    httpsConfig = {
-      key: fs.readFileSync(keyPath),
-      cert: fs.readFileSync(certPath),
-    };
+  // Only load SSL certificates in development mode
+  if (mode === 'development') {
+    const homeDir = os.homedir();
+    const certPath = path.resolve(homeDir, ".office-addin-dev-certs", "localhost.crt");
+    const keyPath = path.resolve(homeDir, ".office-addin-dev-certs", "localhost.key");
+
+    if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
+      httpsConfig = {
+        key: fs.readFileSync(keyPath),
+        cert: fs.readFileSync(certPath),
+      };
+    }
   }
 
   return {
