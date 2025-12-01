@@ -14,7 +14,7 @@
   <Description DefaultValue="AI-powered writing assistant with Google Gemini integration"/>
   <IconUrl DefaultValue="https://YOUR-VERCEL-APP-URL.vercel.app/assets/icon-32.png"/>
   <HighResolutionIconUrl DefaultValue="https://YOUR-VERCEL-APP-URL.vercel.app/assets/icon-64.png"/>
-  <SupportUrl DefaultValue="https://YOUR-VERCEL-APP-URL.vercel.app/"/>
+  <SupportUrl DefaultValue="https://jv-formate.vercel.app/"/>
   
   <!-- App Domains -->
   <AppDomains>
