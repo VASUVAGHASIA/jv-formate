@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google OAuth Callback</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .success {
+            color: #10b981;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .error {
+            color: #ef4444;
+        }
+        h2 {
+            color: #1f2937;
+            margin: 0 0 0.5rem;
+        }
+        p {
+            color: #6b7280;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="spinner" id="spinner"></div>
+        <div id="content">
+            <h2>Processing login...</h2>
+            <p>Please wait while we complete your authentication.</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { handleOAuthCallback, storeToken, storeUserInfo } from '../src/utils/oauth-redirect.ts';
+
+        async function processCallback() {
+            try {
+                // Handle the OAuth callback (reads from URL automatically)
+                const result = await handleOAuthCallback();
+                
+                // Store tokens and user info
+                storeToken(result.token);
+                storeUserInfo(result.userInfo);
+                
+                // Show success
+                document.getElementById('spinner').style.display = 'none';
+                document.getElementById('content').innerHTML = `
+                    <div class="success">✓</div>
+                    <h2>Login Successful!</h2>
+                    <p>Signed in as ${result.userInfo.name}</p>
+                    <p style="margin-top: 1rem; font-size: 0.875rem;">Closing window...</p>
+                `;
+                
+                // Notify opener window
+                if (window.opener) {
+                    window.opener.postMessage({ 
+                        type: 'oauth-success', 
+                        token: result.token.access_token,
+                        userInfo: result.userInfo 
+                    }, window.location.origin);
+                }
+                
+                // Close popup after 1.5 seconds
+                setTimeout(() => {
+                    window.close();
+                }, 1500);
+                
+            } catch (error) {
+                console.error('OAuth callback error:', error);
+                
+                document.getElementById('spinner').style.display = 'none';
+                document.getElementById('content').innerHTML = `
+                    <div class="error" style="font-size: 3rem;">✗</div>
+                    <h2 class="error">Login Failed</h2>
+                    <p>${error.message}</p>
+                    <p style="margin-top: 1rem; font-size: 0.875rem;">Please close this window and try again.</p>
+                `;
+            }
+        }
+
+        // Check if we have a code in the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('code')) {
+            processCallback();
+        } else if (urlParams.has('error')) {
+            const error = urlParams.get('error');
+            const errorDesc = urlParams.get('error_description');
+            
+            document.getElementById('spinner').style.display = 'none';
+            document.getElementById('content').innerHTML = `
+                <div class="error" style="font-size: 3rem;">✗</div>
+                <h2 class="error">Authorization Failed</h2>
+                <p>${errorDesc || error}</p>
+                <p style="margin-top: 1rem; font-size: 0.875rem;">Please close this window and try again.</p>
+            `;
+        } else {
+            document.getElementById('spinner').style.display = 'none';
+            document.getElementById('content').innerHTML = `
+                <div class="error" style="font-size: 3rem;">✗</div>
+                <h2 class="error">Invalid Callback</h2>
+                <p>No authorization code received.</p>
+            `;
+        }
+    </script>
+</body>
+</html>
