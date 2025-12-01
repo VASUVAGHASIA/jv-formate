@@ -10,7 +10,7 @@ import { hasApiKey } from './utils/gemini';
 type Tab = 'chat' | 'format';
 
 const App: React.FC = () => {
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('chat');
   const [hasKey, setHasKey] = useState(hasApiKey());
   const [showKeyModal, setShowKeyModal] = useState(!hasApiKey());
