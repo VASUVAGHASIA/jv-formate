@@ -2,26 +2,31 @@ import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+// import { fileURLToPath } from "node:url";
 import os from "node:os";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig(({ mode }) => {
   // Load env file based on `mode` in the current working directory.
   const env = loadEnv(mode, process.cwd(), '');
-  
+
   const homeDir = os.homedir();
   const certPath = path.resolve(homeDir, ".office-addin-dev-certs", "localhost.crt");
   const keyPath = path.resolve(homeDir, ".office-addin-dev-certs", "localhost.key");
 
+  let httpsConfig;
+  if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
+    httpsConfig = {
+      key: fs.readFileSync(keyPath),
+      cert: fs.readFileSync(certPath),
+    };
+  }
+
   return {
     plugins: [react()],
     server: {
-      https: {
-        key: fs.readFileSync(keyPath),
-        cert: fs.readFileSync(certPath),
-      },
+      https: httpsConfig,
       port: 3000,
     },
     build: {
