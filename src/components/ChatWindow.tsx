@@ -1,6 +1,6 @@
 /* global Word */
 import React, { useState, useRef, useEffect } from 'react';
-import { generateActionableContent, listModels, type AttachedFile as GeminiAttachedFile } from '../utils/gemini';
+import { generateActionableContent, listModels, type AttachedFile as GeminiAttachedFile, type AIAction } from '../utils/gemini';
 import { parseMarkdownToHtml } from '../utils/markdownParser';
 import {
   replaceSelectedTextWithHtml,
@@ -174,7 +174,7 @@ const ChatWindow: React.FC = () => {
     });
   };
 
-  const handleAddToDoc = async (messageId: string, content: string, formatting?: any) => {
+  const handleAddToDoc = async (messageId: string, content: string, formatting?: AIAction['formatting']) => {
     try {
       const htmlContent = parseMarkdownToHtml(content);
 
@@ -188,8 +188,8 @@ const ChatWindow: React.FC = () => {
           if (formatting.fontName) insertedRange.font.name = formatting.fontName;
 
           if (formatting.fontSize) {
-            const size = parseFloat(formatting.fontSize);
-            if (!isNaN(size) && size > 0) {
+            const size = formatting.fontSize;
+            if (size > 0) {
               insertedRange.font.size = size;
             }
           }
@@ -212,7 +212,7 @@ const ChatWindow: React.FC = () => {
 
             const mappedAlignment = alignMap[formatting.alignment.toLowerCase()] || Word.Alignment.left;
 
-            insertedRange.paragraphs.items.forEach((p: any) => {
+            insertedRange.paragraphs.items.forEach((p: Word.Paragraph) => {
               p.alignment = mappedAlignment;
             });
           }
@@ -343,7 +343,7 @@ const ChatWindow: React.FC = () => {
       // 3. Execute Action
       let actionPerformed = '';
       let payload: string | undefined;
-      let formatting: any | undefined;
+      let formatting: AIAction['formatting'] | undefined;
 
       if (response.action) {
         const action = response.action;
@@ -394,8 +394,8 @@ const ChatWindow: React.FC = () => {
                   if (formatting.fontName) insertedRange.font.name = formatting.fontName;
 
                   if (formatting.fontSize) {
-                    const size = parseFloat(formatting.fontSize);
-                    if (!isNaN(size) && size > 0) {
+                    const size = formatting.fontSize;
+                    if (size > 0) {
                       insertedRange.font.size = size;
                     }
                   }
@@ -416,19 +416,19 @@ const ChatWindow: React.FC = () => {
                       'justify': Word.Alignment.justified
                     };
 
-                    insertedRange.paragraphs.items.forEach((p: any) => {
-                      if (formatting.alignment) {
-                        const mappedAlignment = alignMap[formatting.alignment.toLowerCase()] || Word.Alignment.left;
+                    insertedRange.paragraphs.items.forEach((p: Word.Paragraph) => {
+                      if (formatting!.alignment) {
+                        const mappedAlignment = alignMap[formatting!.alignment.toLowerCase()] || Word.Alignment.left;
                         p.alignment = mappedAlignment;
                       }
-                      if (formatting.lineSpacing) {
-                        p.lineSpacing = formatting.lineSpacing;
+                      if (formatting!.lineSpacing) {
+                        p.lineSpacing = formatting!.lineSpacing;
                       }
-                      if (formatting.spaceAfter !== undefined) {
-                        p.spaceAfter = formatting.spaceAfter;
+                      if (formatting!.spaceAfter !== undefined) {
+                        p.spaceAfter = formatting!.spaceAfter;
                       }
-                      if (formatting.spaceBefore !== undefined) {
-                        p.spaceBefore = formatting.spaceBefore;
+                      if (formatting!.spaceBefore !== undefined) {
+                        p.spaceBefore = formatting!.spaceBefore;
                       }
                     });
                   }

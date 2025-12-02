@@ -183,10 +183,12 @@ export interface AIAction {
     spaceBefore?: number;
   };
   commandName?: 'fixHeadings' | 'normalizeFonts' | 'setMargins' | 'formatImages' | 'updateHeader' | 'updateFooter' | 'applyTheme' | 'applyBulletList' | 'applyNumberedList' | 'clearFormatting' | 'autoFormat' | 'addBorder' | 'addPageBorder' | 'addParagraphBorder' | 'removeBorders' | 'addDecorativeBorder';
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   args?: any;
   target?: 'selection' | 'document';
   multiCommands?: Array<{
     commandName: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     args?: any;
   }>;
 }
@@ -835,85 +837,6 @@ ALIGNMENT RULES - BE CONSISTENT:
 │ • Bullet point lists (always)                                               │
 │ • Headings (always)                                                         │
 │ • Modern business docs (if specifically requested)                          │
-│                                                                             │
-│ Reason: Easier to read, modern look                                         │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│ USE CENTER ALIGNMENT for:                                                  │
-│ • Document title (main title only)                                          │
-│ • Cover page elements                                                       │
-│ • Standalone quotes/callouts                                                │
-│ • Image captions (optional)                                                 │
-│                                                                             │
-│ NEVER center: Regular paragraphs, headings, body text                       │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-═══════════════════════════════════════════════════════════════════════════════
-🧠 INTELLIGENT CONTENT GENERATION
-═══════════════════════════════════════════════════════════════════════════════
-
-When generating content, USE YOUR KNOWLEDGE to provide:
-
-✓ SPECIFIC DATA: Real statistics, dates, facts (e.g., "In 2023, AI market reached $196B")
-✓ EXAMPLES: Concrete instances, case studies, scenarios
-✓ COMPARISONS: Tables comparing options, pros/cons lists (USE TABLES!)
-✓ STRUCTURED ARGUMENTS: Introduction → Body → Conclusion flow
-✓ AUTHORITATIVE TONE: Confident, well-researched, professional
-✓ CITATIONS: Where appropriate, mention sources (even if general)
-✓ VISUAL HIERARCHY: Strategic use of headings, subheadings, lists, tables
-
-CONTENT DENSITY:
-• Short requests (1-2 sentences): Generate 200-400 words minimum
-• Reports/essays: 800-1500 words with proper structure
-• Executive summaries: 300-500 words, high-density information
-• Technical docs: Comprehensive coverage with examples
-
-STRUCTURE CONSCIOUSNESS:
-• Start with main title (18-20pt, centered)
-• Use heading hierarchy (# 16pt → ## 14pt → ### 12pt)
-• Body paragraphs: 11-12pt, justified for formal docs
-• Insert tables wherever comparing 2+ items
-• Use bullet points for lists, NOT for paragraphs
-• Maintain consistent spacing throughout
-
-═══════════════════════════════════════════════════════════════════════════════
-⚡ DECISION MATRIX - CHOOSE THE RIGHT ACTION TYPE
-═══════════════════════════════════════════════════════════════════════════════
-
-┌─────────────────────────────┬──────────────────────────────────────────────────┐
-│ USER REQUEST                │ ACTION TYPE TO USE                               │
-├─────────────────────────────┼──────────────────────────────────────────────────┤
-│ "Write a report on X"       │ type: "insert" + content + formatting            │
-│ "Make this formal"          │ type: "replace" + reformatted content            │
-│ "Summarize this"            │ type: "replace" + summarized content             │
-│ "Add a header"              │ type: "command", commandName: "updateHeader"     │
-│ "Fix the margins"           │ type: "command", commandName: "setMargins"       │
-│ "Format as report"          │ type: "multi-command" with multiple commands     │
-│ "Make this bold"            │ type: "format" + formatting object               │
-│ "What is X?"                │ type: "chat" + informational response            │
-│ "Fix all headings"          │ type: "command", commandName: "fixHeadings"      │
-│ "Make it professional"      │ type: "multi-command" (theme + fonts + spacing)  │
-│                             │                                                  │
-│ BORDER COMMANDS:            │                                                  │
-│ "Add a border"              │ type: "command", commandName: "addBorder"        │
-│ "Add page border"           │ type: "command", commandName: "addPageBorder"    │
-│ "Red border"                │ type: "command", commandName: "addBorder"        │
-│                             │ args: { color: "#FF0000" }                       │
-│ "Thick border"              │ type: "command", commandName: "addBorder"        │
-│                             │ args: { width: 6 }                               │
-│ "Double border"             │ type: "command", commandName: "addBorder"        │
-│                             │ args: { style: "double" }                        │
-│ "Wavy/curly border"         │ type: "command", commandName: "addBorder"        │
-│                             │ args: { style: "wave" }                          │
-│ "Border around this"        │ type: "command", commandName: "addBorder"        │
-│ "Decorative box"            │ type: "command", commandName:                    │
-│                             │ "addDecorativeBorder"                            │
-│ "Border on all pages"       │ type: "command", commandName: "addPageBorder"    │
-│                             │ args: { applyToAllPages: true }                  │
-│ "Remove border"             │ type: "command", commandName: "removeBorders"    │
-│ "Colorful border"           │ type: "command", commandName: "addBorder"        │
-│                             │ args: { color: "#0078D4", width: 3 }             │
 │ "Border on selected text"   │ type: "command", commandName: "addBorder"        │
 │ "Border on one page"        │ type: "command", commandName: "addPageBorder"    │
 │                             │ args: { applyToAllPages: false }                 │
@@ -1148,13 +1071,15 @@ NOW PROCESS THE USER'S REQUEST AND GENERATE YOUR RESPONSE.
       if (Array.isArray(parsed)) {
         console.log("Received JSON Array response, merging...", parsed);
 
-        let mergedResponse: AIResponse = {
+        const mergedResponse: AIResponse = {
           chatResponse: "",
           action: { type: 'multi-command', multiCommands: [] }
         };
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const actions: any[] = [];
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         parsed.forEach((item: any) => {
           // Use the first chat response found
           if (item.chatResponse && !mergedResponse.chatResponse) {
@@ -1173,6 +1098,7 @@ NOW PROCESS THE USER'S REQUEST AND GENERATE YOUR RESPONSE.
         // If we have multiple actions, convert to multi-command or keep as is if it's already one
         else if (actions.length > 1) {
           // Check if we can merge into multi-command
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const multiCommands: any[] = [];
 
           actions.forEach(action => {

@@ -18,7 +18,7 @@ export const parseMarkdownToHtml = (markdown: string): string => {
     let tableHeaderParsed = false;
 
     for (let i = 0; i < lines.length; i++) {
-        let line = lines[i];
+        const line = lines[i];
 
         // Check for empty lines
         if (line.trim() === '') {
@@ -69,64 +69,52 @@ export const parseMarkdownToHtml = (markdown: string): string => {
         } else if (inTable) {
             html += '</tbody></table>';
             inTable = false;
-            tableHeaderParsed = false;
-        }
-
-        // Headers
-        if (line.match(/^#{1,6} /)) {
-            if (inList) { html += `</${listType}>`; inList = false; }
-            const level = line.match(/^#{1,6}/)![0].length;
-            const content = line.replace(/^#{1,6} /, '');
-            html += `<h${level}>${parseInline(content)}</h${level}>`;
-            continue;
-        }
-
-        // Unordered List
-        if (line.match(/^\s*[\*\-\+] /)) {
-            if (!inList || listType === 'ol') {
-                if (inList) html += `</${listType}>`;
-                html += '<ul>';
-                inList = true;
-                listType = 'ul';
+            if (line.match(/^\s*[*\-+] /)) {
+                if (!inList || listType === 'ol') {
+                    if (inList) html += `</${listType}>`;
+                    html += '<ul>';
+                    inList = true;
+                    listType = 'ul';
+                }
+                const content = line.replace(/^\s*[*\-+] /, '');
+                html += `<li>${parseInline(content)}</li>`;
+                continue;
             }
-            const content = line.replace(/^\s*[\*\-\+] /, '');
-            html += `<li>${parseInline(content)}</li>`;
-            continue;
-        }
 
-        // Ordered List
-        if (line.match(/^\s*\d+\. /)) {
-            if (!inList || listType === 'ul') {
-                if (inList) html += `</${listType}>`;
-                html += '<ol>';
-                inList = true;
-                listType = 'ol';
+            // Ordered List
+            if (line.match(/^\s*\d+\. /)) {
+                if (!inList || listType === 'ul') {
+                    if (inList) html += `</${listType}>`;
+                    html += '<ol>';
+                    inList = true;
+                    listType = 'ol';
+                }
+                const content = line.replace(/^\s*\d+\. /, '');
+                html += `<li>${parseInline(content)}</li>`;
+                continue;
             }
-            const content = line.replace(/^\s*\d+\. /, '');
-            html += `<li>${parseInline(content)}</li>`;
-            continue;
-        }
 
-        // Close list if we encounter a non-list line
-        if (inList) {
-            html += `</${listType}>`;
-            inList = false;
-        }
-
-        // Paragraphs
-        if (line.match(/^\s*[\*\-\+][A-Za-z0-9]/)) {
-            if (!inList || listType === 'ol') {
-                if (inList) html += `</${listType}>`;
-                html += '<ul>';
-                inList = true;
-                listType = 'ul';
+            // Close list if we encounter a non-list line
+            if (inList) {
+                html += `</${listType}>`;
+                inList = false;
             }
-            const content = line.replace(/^\s*[\*\-\+]/, '');
-            html += `<li>${parseInline(content)}</li>`;
-            continue;
-        }
 
-        html += `<p>${parseInline(line)}</p>`;
+            // Paragraphs
+            if (line.match(/^\s*[*\-+][A-Za-z0-9]/)) {
+                if (!inList || listType === 'ol') {
+                    if (inList) html += `</${listType}>`;
+                    html += '<ul>';
+                    inList = true;
+                    listType = 'ul';
+                }
+                const content = line.replace(/^\s*[*\-+]/, '');
+                html += `<li>${parseInline(content)}</li>`;
+                continue;
+            }
+
+            html += `<p>${parseInline(line)}</p>`;
+        }
     }
 
     if (inList) {
@@ -142,7 +130,7 @@ export const parseMarkdownToHtml = (markdown: string): string => {
 // Export the old name for compatibility if needed, but we replaced the implementation.
 export const markdownToHtml = parseMarkdownToHtml;
 
-const parseInline = (text: string): string => {
+function parseInline(text: string): string {
     let html = text;
 
     // Bold *** or ___
@@ -165,4 +153,4 @@ const parseInline = (text: string): string => {
     html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
 
     return html;
-};
+}

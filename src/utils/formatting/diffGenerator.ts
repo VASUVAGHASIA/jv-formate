@@ -15,7 +15,7 @@ export const generateDiff = (
     // Font Changes
     if (options.enableFonts) {
         const fontProblems = problems.filter(p => p.id.startsWith('font-'));
-        if (fontProblems.length > 0 || true) { // Always check/offer if enabled
+        if (fontProblems.length > 0) {
             changes.push({
                 id: 'normalize-fonts',
                 type: 'style',
@@ -25,22 +25,6 @@ export const generateDiff = (
                 after: 'Calibri 11pt',
                 range: { start: 0, end: model.paragraphs.length },
                 applyFn: async () => {
-                    // We need context here. The applyFn in FormattingPanel calls it.
-                    // But wait, applyFn in FormattingPanel is just `await change.applyFn()`.
-                    // The functions in wordUtils use Word.run internally.
-                    // My localFixes functions expect `context`.
-                    // This is a mismatch. 
-                    // I need to wrap them in Word.run here or in localFixes.
-
-                    // Let's check localFixes again. 
-                    // They take `context`.
-                    // wordUtils functions wrap Word.run.
-
-                    // I should wrap them here or update localFixes to wrap Word.run.
-                    // Updating localFixes is better for consistency with wordUtils.
-
-                    // Wait, I can't update localFixes in this tool call.
-                    // I will assume I will update localFixes to wrap Word.run.
                     await normalizeFontsWrapper();
                 },
                 enabled: true

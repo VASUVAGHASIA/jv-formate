@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { 
-  getStoredToken, 
-  getUserInfo, 
-  clearToken, 
+import {
+  getStoredToken,
+  getUserInfo,
+  clearToken,
   getStoredUserInfo,
-  type UserInfo 
+  type UserInfo
 } from '../utils/device-auth';
 
 interface AuthContextType {
@@ -31,7 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const refreshAuth = async () => {
     const storedToken = getStoredToken();
     const storedUser = getStoredUserInfo();
-    
+
     if (storedToken && storedUser) {
       try {
         // Token exists and hasn't expired, use stored user info
@@ -96,6 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

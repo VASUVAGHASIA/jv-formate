@@ -46,7 +46,7 @@ const SCOPES = [
  */
 export async function requestDeviceCode(clientId: string): Promise<DeviceCodeResponse> {
   console.log('📱 Requesting device code from Google...');
-  
+
   const response = await fetch(DEVICE_CODE_ENDPOINT, {
     method: 'POST',
     headers: {
@@ -64,13 +64,13 @@ export async function requestDeviceCode(clientId: string): Promise<DeviceCodeRes
   }
 
   const data: DeviceCodeResponse = await response.json();
-  
+
   console.log('✅ Device code received');
   console.log('👤 User code:', data.user_code);
   console.log('🔗 Verification URL:', data.verification_url_complete || data.verification_url);
   console.log('⏱️ Expires in:', data.expires_in, 'seconds');
   console.log('🔄 Poll interval:', data.interval, 'seconds');
-  
+
   return data;
 }
 
@@ -81,11 +81,11 @@ export async function requestDeviceCode(clientId: string): Promise<DeviceCodeRes
 export function openVerificationUrlInBrowser(verificationUrl: string): Promise<void> {
   return new Promise((resolve, _reject) => {
     console.log('🌐 Opening verification URL in system browser...');
-    
+
     // Try Office.js dialog API first (preferred for Office Add-ins)
     if (typeof Office !== 'undefined' && Office.context && Office.context.ui) {
       console.log('📱 Using Office.context.ui.displayDialogAsync');
-      
+
       Office.context.ui.displayDialogAsync(
         verificationUrl,
         {
@@ -102,13 +102,14 @@ export function openVerificationUrlInBrowser(verificationUrl: string): Promise<v
           } else {
             console.log('✅ Browser opened successfully');
             const dialog = result.value;
-            
+
             // User might close the dialog manually
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             dialog.addEventHandler(Office.EventType.DialogEventReceived, (_arg: any) => {
               console.log('📪 Dialog closed by user');
               dialog.close();
             });
-            
+
             resolve();
           }
         }
@@ -134,7 +135,7 @@ function fallbackBrowserOpen(url: string): void {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  
+
   console.log('✅ Browser opened via fallback method');
 }
 
@@ -148,24 +149,24 @@ export async function pollForToken(
   onStatusUpdate?: (status: string) => void
 ): Promise<TokenResponse> {
   console.log('🔄 Starting token polling...');
-  
+
   const pollInterval = (interval || 5) * 1000; // Convert to milliseconds
   let attempts = 0;
   const maxAttempts = 120; // 10 minutes max (120 * 5 seconds)
-  
+
   return new Promise((resolve, reject) => {
     const poll = async () => {
       attempts++;
-      
+
       if (attempts > maxAttempts) {
         reject(new Error('Polling timeout: User did not complete login in time'));
         return;
       }
-      
+
       try {
         console.log(`🔄 Polling attempt ${attempts}...`);
         onStatusUpdate?.(`Waiting for login... (${attempts})`);
-        
+
         const response = await fetch(TOKEN_ENDPOINT, {
           method: 'POST',
           headers: {
@@ -228,7 +229,7 @@ export async function pollForToken(
  */
 export async function getUserInfo(accessToken: string): Promise<UserInfo> {
   console.log('👤 Fetching user information...');
-  
+
   const response = await fetch(USER_INFO_ENDPOINT, {
     headers: {
       'Authorization': `Bearer ${accessToken}`,
@@ -241,7 +242,7 @@ export async function getUserInfo(accessToken: string): Promise<UserInfo> {
 
   const userInfo: UserInfo = await response.json();
   console.log('✅ User info retrieved:', userInfo.email);
-  
+
   return userInfo;
 }
 
@@ -257,20 +258,20 @@ export async function executeDeviceFlow(
     // Step 1: Request device code
     onStatusUpdate?.('Requesting authorization...');
     const deviceCodeData = await requestDeviceCode(clientId);
-    
+
     // Notify UI about user code (optional: show it to user)
     onUserCodeReceived?.(
       deviceCodeData.user_code,
       deviceCodeData.verification_url_complete || deviceCodeData.verification_url
     );
-    
+
     // Step 2: Open browser for user to login
     onStatusUpdate?.('Opening browser for login...');
-    const verificationUrl = deviceCodeData.verification_url_complete || 
-                           `${deviceCodeData.verification_url}?user_code=${deviceCodeData.user_code}`;
-    
+    const verificationUrl = deviceCodeData.verification_url_complete ||
+      `${deviceCodeData.verification_url}?user_code=${deviceCodeData.user_code}`;
+
     await openVerificationUrlInBrowser(verificationUrl);
-    
+
     // Step 3: Poll for token
     onStatusUpdate?.('Waiting for you to complete login in browser...');
     const token = await pollForToken(
@@ -279,13 +280,13 @@ export async function executeDeviceFlow(
       deviceCodeData.interval,
       onStatusUpdate
     );
-    
+
     // Step 4: Get user info
     onStatusUpdate?.('Getting user information...');
     const userInfo = await getUserInfo(token.access_token);
-    
+
     return { token, userInfo };
-    
+
   } catch (error) {
     console.error('❌ Device flow failed:', error);
     throw error;
@@ -298,16 +299,16 @@ export async function executeDeviceFlow(
 
 export function storeToken(token: TokenResponse): void {
   const expiresAt = Date.now() + token.expires_in * 1000;
-  
+
   localStorage.setItem('google_access_token', token.access_token);
   localStorage.setItem('google_token_expires_at', expiresAt.toString());
   localStorage.setItem('google_token_type', token.token_type);
   localStorage.setItem('google_token_scope', token.scope);
-  
+
   if (token.refresh_token) {
     localStorage.setItem('google_refresh_token', token.refresh_token);
   }
-  
+
   console.log('💾 Token stored in localStorage');
   console.log(`⏱️ Token expires at: ${new Date(expiresAt).toLocaleString()}`);
 }
@@ -315,18 +316,18 @@ export function storeToken(token: TokenResponse): void {
 export function getStoredToken(): string | null {
   const token = localStorage.getItem('google_access_token');
   const expiresAt = localStorage.getItem('google_token_expires_at');
-  
+
   if (!token || !expiresAt) {
     return null;
   }
-  
+
   // Check if token is expired
   if (Date.now() >= parseInt(expiresAt)) {
     console.warn('⚠️ Stored token has expired');
     clearToken();
     return null;
   }
-  
+
   return token;
 }
 
@@ -337,7 +338,7 @@ export function clearToken(): void {
   localStorage.removeItem('google_token_scope');
   localStorage.removeItem('google_refresh_token');
   localStorage.removeItem('google_user_info');
-  
+
   console.log('🗑️ Token cleared from storage');
 }
 
@@ -349,7 +350,7 @@ export function storeUserInfo(userInfo: UserInfo): void {
 export function getStoredUserInfo(): UserInfo | null {
   const data = localStorage.getItem('google_user_info');
   if (!data) return null;
-  
+
   try {
     return JSON.parse(data);
   } catch {
@@ -383,7 +384,7 @@ export function storeTokens(tokenResponse: TokenResponse): void {
  */
 export async function refreshAccessToken(refreshToken: string): Promise<TokenResponse> {
   console.log('🔄 Refreshing access token...');
-  
+
   const response = await fetch(TOKEN_ENDPOINT, {
     method: 'POST',
     headers: {
@@ -403,6 +404,6 @@ export async function refreshAccessToken(refreshToken: string): Promise<TokenRes
 
   const data: TokenResponse = await response.json();
   console.log('✅ Token refreshed');
-  
+
   return data;
 }

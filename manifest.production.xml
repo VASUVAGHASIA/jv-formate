@@ -10,11 +10,11 @@
   <Version>1.0.0.0</Version>
   <ProviderName>AI Assistant Team</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
-  <DisplayName DefaultValue="AI Assistant for Word (Production)"/>
+  <DisplayName DefaultValue="AI Assistant for Word"/>
   <Description DefaultValue="AI-powered writing assistant with Google Gemini integration"/>
-  <IconUrl DefaultValue="https://YOUR-VERCEL-APP-URL.vercel.app/assets/icon-32.png"/>
-  <HighResolutionIconUrl DefaultValue="https://YOUR-VERCEL-APP-URL.vercel.app/assets/icon-64.png"/>
-  <SupportUrl DefaultValue="https://YOUR-VERCEL-APP-URL.vercel.app/"/>
+  <IconUrl DefaultValue="https://jv-formate.vercel.app/assets/icon-32.png"/>
+  <HighResolutionIconUrl DefaultValue="https://jv-formate.vercel.app/assets/icon-64.png"/>
+  <SupportUrl DefaultValue="https://jv-formate.vercel.app/"/>
   
   <!-- App Domains -->
   <AppDomains>
@@ -22,7 +22,7 @@
     <AppDomain>https://oauth2.googleapis.com</AppDomain>
     <AppDomain>https://www.googleapis.com</AppDomain>
     <AppDomain>https://generativelanguage.googleapis.com</AppDomain>
-    <AppDomain>https://YOUR-VERCEL-APP-URL.vercel.app</AppDomain>
+    <AppDomain>https://jv-formate.vercel.app</AppDomain>
   </AppDomains>
   
   <!-- Host Types -->
@@ -32,7 +32,7 @@
   
   <!-- Default Settings -->
   <DefaultSettings>
-    <SourceLocation DefaultValue="https://YOUR-VERCEL-APP-URL.vercel.app/taskpane.html"/>
+    <SourceLocation DefaultValue="https://jv-formate.vercel.app/src/taskpane/taskpane.html"/>
   </DefaultSettings>
   
   <!-- Permissions -->
@@ -140,13 +140,13 @@
           <!-- Resources -->
           <Resources>
             <bt:Images>
-              <bt:Image id="Icon.16x16" DefaultValue="https://YOUR-VERCEL-APP-URL.vercel.app/assets/icon-16.png"/>
-              <bt:Image id="Icon.32x32" DefaultValue="https://YOUR-VERCEL-APP-URL.vercel.app/assets/icon-32.png"/>
-              <bt:Image id="Icon.80x80" DefaultValue="https://YOUR-VERCEL-APP-URL.vercel.app/assets/icon-80.png"/>
+              <bt:Image id="Icon.16x16" DefaultValue="https://jv-formate.vercel.app/assets/icon-16.png"/>
+              <bt:Image id="Icon.32x32" DefaultValue="https://jv-formate.vercel.app/assets/icon-32.png"/>
+              <bt:Image id="Icon.80x80" DefaultValue="https://jv-formate.vercel.app/assets/icon-80.png"/>
             </bt:Images>
             <bt:Urls>
-              <bt:Url id="Commands.Url" DefaultValue="https://YOUR-VERCEL-APP-URL.vercel.app/commands.html"/>
-              <bt:Url id="Taskpane.Url" DefaultValue="https://YOUR-VERCEL-APP-URL.vercel.app/taskpane.html"/>
+              <bt:Url id="Commands.Url" DefaultValue="https://jv-formate.vercel.app/src/commands/commands.html"/>
+              <bt:Url id="Taskpane.Url" DefaultValue="https://jv-formate.vercel.app/src/taskpane/taskpane.html"/>
             </bt:Urls>
             <bt:ShortStrings>
               <bt:String id="CommandsGroup.Label" DefaultValue="AI Assistant"/>

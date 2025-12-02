@@ -23,7 +23,7 @@ export const buildDocumentModel = async (context: Word.RequestContext): Promise<
     const paragraphInfos: ParagraphInfo[] = paragraphs.items.map((p, index) => {
         // Check if it's a list item
         const isListItem = p.listItemOrNullObject !== null;
-        let listLevel = -1;
+        const listLevel = -1;
 
         // We need to load list level separately if it is a list item, 
         // but for now we'll just mark it. In a real deep analysis we'd load levels.

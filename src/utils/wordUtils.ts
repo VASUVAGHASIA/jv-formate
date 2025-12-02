@@ -412,6 +412,7 @@ export const centerAllImages = async (padding: number = 0, addCaptions: boolean 
       for (let i = shapes.items.length - 1; i >= 0; i--) {
         const shape = shapes.items[i];
         if (shape.type === Word.ShapeType.picture) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (shape as any).convertToInlinePicture();
         }
       }
